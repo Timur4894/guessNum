@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
-import { StyleSheet, Text, View, Alert } from "react-native"
+import { StyleSheet, Text, View, Alert, FlatList } from "react-native"
 import NumberContainer from "../components/game/numberContainer"
 import PrimaryButton from "../components/ui/primaryButton"
 import { Ionicons } from '@expo/vector-icons'
+import GuessLogItem from "../components/game/guessLogItem"
 
 function generateRandomNumber(min, max, exclude){
     const rndNum = Math.floor(Math.random() * (max-min)) + min
@@ -20,6 +21,7 @@ let maxBoundary = 100
 function GameScreen({userNumber, onGameOver}){
     const nitialGuess = generateRandomNumber(1, 100, userNumber)
     const [currentGuess, setCurrentGuess] = useState(nitialGuess)
+    const [guessRounds, setGuessRounds] = useState([nitialGuess])
 
     useEffect(()=>{
         if (currentGuess == userNumber){
@@ -45,6 +47,7 @@ function GameScreen({userNumber, onGameOver}){
         }
         const newRndNum = generateRandomNumber(minBoundary,maxBoundary,currentGuess)
         setCurrentGuess(newRndNum)
+        setGuessRounds(prevGuessR => [newRndNum, ...prevGuessR])
     }
     return( 
         <View style={styles.screen}>
@@ -59,6 +62,16 @@ function GameScreen({userNumber, onGameOver}){
                     <PrimaryButton onPress={nextGuessHandler.bind(this,'lower')}>Lower</PrimaryButton>
                     <PrimaryButton onPress={nextGuessHandler.bind(this,'greater')}>Higher</PrimaryButton>
                 </View>   
+            </View>
+            <View style={{marginTop: 20, flex: 1}}>
+                {/* {guessRounds.map(rounds=>{
+                    return(
+                        <Text key={rounds}>
+                            {rounds}
+                        </Text>
+                    )
+                })} */}
+                <FlatList data={guessRounds} renderItem={(itemData) => <GuessLogItem roundNumber={itemData.index + 1} guess={itemData.item}/>} keyExtractor={(item)=>item} />
             </View>
         </View>
     )
